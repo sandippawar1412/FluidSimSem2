@@ -1,6 +1,7 @@
 FluidSimSem2
 ============
-#NavierStokes#Water#Particles#LevelSet#WaterSurface
+
+#NavierStokes#Water#LevelSet#WaterSurface
 Project is about simulating liquid.. which is NavierStokes equation as physics model and eulers approach to implement the things..
 Done(as of now): 2D liquid simulator with complete implementation for routines,
 
