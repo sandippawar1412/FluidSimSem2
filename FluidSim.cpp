@@ -7,7 +7,6 @@
 #include <cassert>
 using namespace std;
 extern int sb;
-
 extern int ProjectFLAG;
 extern bool AdvectFlag ;
 
