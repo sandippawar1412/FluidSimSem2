@@ -13,7 +13,7 @@ enum renderFlag{VEL=4, DEN, PAR, PRE, DUB, BOU, LES};//choose what to render..
 renderFlag output=LES; //default is velocity
 char output1='~';//extra.. to renderFlag.. it takes keys SHIFT + < ~ to ^ >  and ons offs alternatively different render
 //enum ProjectionRoutines{ GSR,PCG,PCGBridson} ProjectFLAG ;
-bool idleOn = false;// to run the simulator on idle
+bool idleOn = true;// to run the simulator on idle
 bool anyUpdation = true;
 
 double nearFactor = 0;
@@ -43,7 +43,8 @@ void initParticles();
 extern int winId;
 
 
-enum fluidBody{ DAM_BREAK=1,DAM_CENTER=2,STATIC_BED=3,DOUBLE_DAM=4} fBT ; //fluidBodyType
+enum fluidBody{ DAM_BREAK=1,DAM_CENTER=2,STATIC_BED=3,DOUBLE_DAM=4} fBT=DAM_CENTER ; //fluidBodyType
+
 void KeyPressed (unsigned char key, int x, int y)
 {
 	if (key==27)

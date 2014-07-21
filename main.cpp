@@ -6,7 +6,7 @@
 #include "Plotter.h"
 #include "opengl.h"
 #include <string>
-
+#include <time.h>
 #include <pthread.h>
 
 GridStag* sGrid = new GridStag;
@@ -34,7 +34,7 @@ void preDisplay ( );
 void postDisplay ( );
 void openGlutWindow ( char* windowName) ;
 void reshape ( int w, int h ) ;
-
+void idleFun();
 
 unsigned int framenum=0;
 unsigned char *pRGB;
@@ -73,26 +73,52 @@ void Timer(int val) {
     glutPostRedisplay();
     glutTimerFunc(FRAME_INTERVAL_ms, Timer, 1);
 }
-
-int main(int argc, char** argv)
+/*int main(int argc, char** argv)
 {
    glutInit(&argc, argv);
    init ();
-   int i=pthread_getconcurrency();/*to resolve this error:Inconsistency detected by ld.so: dl-version.c: 224: _dl_check_map_versions: Assertion `needed != ((void *)0)' failed!
-   ..Read this : https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642?comments=all*/
+   int i=pthread_getconcurrency();
+//   to resolve this error:Inconsistency detected by ld.so: dl-version.c: 224: _dl_check_map_versions: Assertion `needed != ((void *)0)' failed!
+//   ..Read this : https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642?comments=all
 
    char windowName[]="   Liquid_Simulator-LevelSet+Surface" ;
    openGlutWindow(windowName);
+
  //  glutTimerFunc(FRAME_INTERVAL_ms,Timer,1);  //1s/40ms = 1000/40 -> 25 frames/sec
    glutMainLoop();
    return 0;
+}*/
+int main(int argc, char** argv)
+{
+   //glutInit(&argc, argv);
+   init();
+   int i=pthread_getconcurrency();
+//   to resolve this error:Inconsistency detected by ld.so: dl-version.c: 224: _dl_check_map_versions: Assertion `needed != ((void *)0)' failed!
+//     ..Read this : https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642?comments=all
+
+//   glutIdleFunc(idleFun);
+
+   clock_t t1,t2;
+   int it=0;
+   while(1){
+   t1 = clock();
+   animate();
+   t2 = clock();
+   double diff = t2-t1;
+   cout<<"Iteration "<<it<<" : "<<diff/CLOCKS_PER_SEC*1000<<"ms"<<endl;
+   //print->matrices(sGrid->distanceLevelSet);
+   it++;
+   }
+	//glutMainLoop();
+	return 0;
 }
+
 
 //---------glut and opengl.....Initializations
 void animate()
 {
 	fluidSim->simulate(timestep);
-#define MAX_ITERATION 1800
+   #define MAX_ITERATION 1800
 	/*
 
 	extern int flagC;
@@ -174,6 +200,7 @@ void display(void){
 		render->renderVector2D(sGrid->u,sGrid->v);
 	if(flag[5])
 		render->renderMat(sGrid->distanceLevelSet,2);
+
 	/*if(flag[6])
 		render->renderMat(sGrid->isFluidBoundary,1);
 */
@@ -236,8 +263,10 @@ void idleFun ( void )
 {
 	if(idleOn){
 	 animate();
+	 print->matrices(sGrid->distanceLevelSet);
 	 glutSetWindow ( winId );
-	 glutPostRedisplay ( );}
+	 glutPostRedisplay ( );
+	 }
 }
 
 void motionFun ( int x, int y )
@@ -262,7 +291,6 @@ void mouseFun ( int button, int state, int x, int y )
 	if(mouseButton[0]){
 	mx = ( (x/(double)winSizeX) * (sGrid->nX) ) ;
 	my = ( ((winSizeY - y) / (double)winSizeY) * ( sGrid->nY) ); //not covers exact cell..
-	
 	processMouseInCoords(mx,my);
 	}
 }
