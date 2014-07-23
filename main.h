@@ -11,6 +11,7 @@
 #include "Printer.h"
 #include "GridStag.h"
 #include "FluidSim.h"
+#include "ParameterFLAGS.hpp"
 
 #include "Renderer.h"
 #include <GL/gl.h>

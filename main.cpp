@@ -1,9 +1,8 @@
 #include "commonData.h"
-#include "ParameterFLAGS.hpp"
 #include "main.h"
 #include <time.h>
 #include <pthread.h>
-
+#include <omp.h>
 int main(int argc, char** argv)
 {
 	init();
@@ -35,6 +34,7 @@ void init(void)
    fluidSim->initFluidBody(fBT);// 2: indicates dam break center
    print->init(sGrid);
    render->init(sGrid);
+   omp_set_num_threads(NTHREADS);
 }
 
 void initParticles()

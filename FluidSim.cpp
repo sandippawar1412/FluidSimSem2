@@ -138,8 +138,12 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 	double dx = sGrid->dx;
 	//dt*=nX;
 	double x,y, posx, posy;
+	int part_rows = nX/ NTHREADS;
 	if(component==1){ //Horizontal Component
-		for(int i=1;i<=nY-2;i++)
+		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy)
+		{
+		#pragma omp for schedule(guided,part_rows)
+		for(int i=1;i<=nY-2;i++){
 			for(int j=1;j<=nX-1;j++){
 				x = (j)*dx;
 				y = (i+0.5)*dx;
@@ -148,9 +152,14 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 				RK2(posx,posy,sGrid->u,sGrid->v,-dt);
 				temp(i,j) = getVelInterpolated(posx,posy-0.5,sGrid->u);
 			}
+		}
+		}
 	}
 	else{ //component=2 i.e. Vertical component
-		for(int i=1;i<=nY-1;i++)
+		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy)
+		{
+		#pragma omp for schedule(guided,part_rows)
+		for(int i=1;i<=nY-1;i++){
 			for(int j=1;j<=nX-2;j++){
 				x = (j+0.5)*dx;
 				y = (i)*dx;
@@ -159,6 +168,8 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 				RK2(posx,posy,sGrid->u,sGrid->v,-dt);
 				temp(i,j) = getVelInterpolated(posx-0.5,posy,sGrid->v);
 			}
+		}
+		}
 	}
 	return temp;
 }
