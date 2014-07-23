@@ -16,7 +16,7 @@ LIBS = $(GL_LIBS)
 all: $(OBJ) liquid2D
 
 $(OBJ): %.o : %.cpp
-	$(CC) -c $(CFLAGS) -Wno-write-strings -Wunused-value $< -o $@ 
+	$(CC) -c $(CFLAGS) -Wno-write-strings -Wunused-value $< -o $@ -pg 
 
 #-Wno-write-strings : to ignore warning related to deprecated conversion from const char* to char*
 liquid2D: $(OBJ) 
