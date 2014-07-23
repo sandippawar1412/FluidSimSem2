@@ -3,10 +3,10 @@
 #ifndef _PRINTER_H
 #define _PRINTER_H
 
-#include "opengl.h"
 #include "GridStag.h"
 #include <fstream>
-//using namespace std ;
+#include <iostream>
+using namespace std ;
 class Printer{
 public:
 	GridStag* sGrid;

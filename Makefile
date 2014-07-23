@@ -3,14 +3,14 @@ CC=g++
 GL_INC_DIR=/usr/include
 GL_LIB_DIR=/usr/lib
 
-GL_LIBS=-L$(GL_LIB_DIR) -lglut -lGLU -lGL
+GL_LIBS=-L$(GL_LIB_DIR) -lglut -lGLU -lGL -lm -lpthread
 
 CFLAGS = -Wall 
 # -dNDEBUG
 
 .PHONY:clean
 
-OBJ = main.o GridStag.o Renderer.o FluidSim.o Printer.o pcg.o Particles.o
+OBJ = main.o GridStag.o Renderer.o FluidSim.o Printer.o Particles.o
 LIBS = $(GL_LIBS)
 
 all: $(OBJ) liquid2D
@@ -26,11 +26,10 @@ clean:
 	rm -f  ./*~ ./core $(OBJ) liquid2D
 
 #DEPENDENCIES- DO NOT DELETE
-GridStag.o : GridStag.h
+GridStag.o : GridStag.h ParameterFLAGS.hpp
 Renderer.o : Renderer.h
-FluidSim.o : FluidSim.h ./pcgsolver/*.h
-main.o : keyboard.h opengl.h commonData.h
+FluidSim.o : FluidSim.h ./pcgsolver/*.h ParameterFLAGS.hpp
+main.o : main.h commonData.h
 Printer.o : Printer.h
-pcg.o : pcg.h opengl.h
 Particles.o : Particles.h
 

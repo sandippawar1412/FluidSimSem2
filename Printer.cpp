@@ -13,7 +13,7 @@ void Printer :: matrices(matrix<double> mat)
 		for( int j=0;j < (int)mat.size2();j++,cout<<" ")
 			/*if(mat(i,j)>0 && mat(i,j)<1)
 				cout<<"9";
-			*/
+			 */
 			cout<<mat(i,j);
 	cout<<endl;
 }

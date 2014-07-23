@@ -1,22 +1,17 @@
 
 #include "Renderer.h"
 #include "Printer.h"
-#include "opengl.h"
 
 
 using namespace std;
 extern double zoomFactor;
-extern int sb;
-Renderer :: Renderer()
-{
-}
 
 void Renderer :: init(GridStag* grid)
 {
 	this->sGrid = grid;
 	int nX = (this->sGrid)->nX;
 	int nY = (this->sGrid)->nY;
-	
+
 /*--checkIt--*/
 	gridRTX = zoomFactor; //zoomFactorX- main.cpp - glOrtho
 	gridRTY = zoomFactor; //zoomFactorY
@@ -35,7 +30,7 @@ void Renderer :: initRenderer()
 {
 	int nX = (this->sGrid)->nX;
 	int nY = (this->sGrid)->nY;
-	
+
 	gridLBX = -9;
 	gridLBY = -9;
 	stepX = -1*(gridLBX)*2/nX;
@@ -51,11 +46,11 @@ void Renderer :: renderGrid()
 	double gridLBX = this->gridLBX+stepX;
 	double gridLBY = this->gridLBY+stepY;
 	int fillFlag = 0;
-	
+
 	for (int i=1;i< nX-1;i++){
 		for (int j=1;j< nY-1;j++){
 			glColor3f(1,0,0);//set fill color..used if fillFlag=true
-			drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,fillFlag);//1: Filled grid,0:wire Frame				
+			drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,fillFlag);//1: Filled grid,0:wire Frame
 			gridLBX+=stepX;
 		}
 		gridLBY += stepY;
@@ -68,19 +63,19 @@ void Renderer :: renderBoundary()
 {
 	int nX = (this->sGrid)->nX;
 	int nY = (this->sGrid)->nY;
-	
+
 	//cout<<"\nInRenderer:displayGrid"<<nX<< " " <<nY<<" "<<gridLBX<<" "<<gridLBY;
 	double gridLBX = this->gridLBX;
 	double gridLBY = this->gridLBY;
 	int fillFlag = 0;
-	
+
 	for (int i=0;i< nX;i++){
 		for (int j=0;j< nY;j++){
-			if(i==0+sb||j==0+sb||i==nX-1-sb||j==nY-1-sb)
+			if(i==0||j==0||i==nX-1||j==nY-1)
 			{
 				glColor3f(0.4,0.4,0.4);
 				drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,fillFlag=3);//0,1,2has defined colors..for air liquid and solid cells
-			}	
+			}
 			gridLBX+=stepX;
 		}
 		gridLBY += stepY;
@@ -104,14 +99,14 @@ void Renderer :: drawSquare(double lbx,double lby,double rtx,double rty,int fill
 			case SOLID:
 				glColor3f(0.2,0.2,0);
 				break;
-				
+
 		}
 		/*following 2 conditions should work..but not working..*/
 		//if(fillFlag==LIQUID || fillFlag==SOLID )//uncomment to not render air cells
 		//if(fillFlag == LIQUID  )//uncomment to render only liquid..
-		
+
 		{
-			glBegin(GL_QUADS);		
+			glBegin(GL_QUADS);
 			glVertex2f(lbx, lby);
 			glVertex2f(lbx, rty);
 			glVertex2f(rtx, rty);
@@ -121,7 +116,7 @@ void Renderer :: drawSquare(double lbx,double lby,double rtx,double rty,int fill
 		if(!fillFlag)
 		{
 			glColor3f(.2,.2,.2); //unComment to show grid lines
-			glBegin(GL_LINE_LOOP);		
+			glBegin(GL_LINE_LOOP);
 			glVertex2f(lbx, lby);
 			glVertex2f(lbx, rty);
 			glVertex2f(rtx, rty);
@@ -133,12 +128,12 @@ void Renderer :: drawSquareFilled(int li, int lj, int ri, int rj, double fillVal
 {
 	double lbx = gridLBX + stepX*li;
 	double lby = gridLBY + stepY*lj;
-	
+
 	double rtx = gridLBX + stepX*ri;
 	double rty = gridLBY + stepY*rj;
 
-	glColor3f(fillVal,0,0); 
-	glBegin(GL_QUADS);		
+	glColor3f(fillVal,0,0);
+	glBegin(GL_QUADS);
 	glVertex2f(lbx, lby);
 	glVertex2f(lbx, rty);
 	glVertex2f(rtx, rty);
@@ -147,7 +142,7 @@ void Renderer :: drawSquareFilled(int li, int lj, int ri, int rj, double fillVal
 }
 void Renderer :: drawSquareFilled(double lbx,double lby,double rtx,double rty,double fillVal)
 {
-		
+
 		{
 		//	cout<<fillVal<<endl;
 			if(fillVal!=-2.0)
@@ -166,7 +161,7 @@ void Renderer :: drawSquareFilled(double lbx,double lby,double rtx,double rty,do
 		if(0)
 		{
 			glColor3f(.2,.2,.2); //unComment to show grid lines
-			glBegin(GL_LINE_LOOP);		
+			glBegin(GL_LINE_LOOP);
 			glVertex2f(lbx, lby);
 			glVertex2f(lbx, rty);
 			glVertex2f(rtx, rty);
@@ -179,13 +174,13 @@ void Renderer :: renderMat(matrix<double> mat,int mode)
 {
 	double gridLBX = this->gridLBX;
 	double gridLBY = this->gridLBY;
-	
+
 	int fillFlag = 0;
-	
+
 	switch(mode)
 	{
 		case 1:
-	
+
 		for (unsigned int i=0;i<mat.size1();i++){
 			for (unsigned int j=0;j<mat.size2();j++){
 				glColor3f(1,0,0);//set fill color..used if fillFlag=true
@@ -193,7 +188,7 @@ void Renderer :: renderMat(matrix<double> mat,int mode)
 					fillFlag = 1;
 				else
 					fillFlag = 0;
-				
+
 				//drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,fillFlag);//1: Filled grid,0:wire Frame
 				drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,(int)mat(i,j));//1: Filled grid,0:wire Frame
 				gridLBX+=stepX;
@@ -225,9 +220,9 @@ void Renderer :: renderMat(matrix<double> mat,int mode)
 			gridLBX = this->gridLBX;
 		}
 		break;
-				
-				
-		
+
+
+
 	}
 	renderBoundary();
 }
@@ -237,17 +232,17 @@ void Renderer :: renderVector2D(matrix<double> u, matrix<double> v)
 {
 		//float pi = 22/7;
 	#define pi 22/7
-	
+
 	double gridLBX = this->gridLBX;
 	double gridLBY = this->gridLBY;
 	double stepX = this->stepX;
 	double stepY = this->stepY;
 	int nX = (this->sGrid)->nX;
 	int nY = (this->sGrid)->nY;
-		
-	matrix<double> vel_ang(nY,nX);	
+
+	matrix<double> vel_ang(nY,nX);
 	matrix<double> vel_mag(nY,nX);
-		
+
 	for(int i=0;i< nX;i++)
 		for(int j=0;j< nY;j++)
 		{
@@ -258,24 +253,24 @@ void Renderer :: renderVector2D(matrix<double> u, matrix<double> v)
 			vel_mag(i,j) = sqrt(U(i,j)*U(i,j)+V(i,j)*V(i,j));
 	//		}
 		}
-		 
-	
+
+
 	int flag_Quad=0;
 
 	static double maxv=0 ;
 
 	maxv = MAX(maxv,getMax(vel_mag));
 	//maxv = getMax(vel_mag) ;
-	
+
 	for (int i=0;i<nX;i++)
 	{
 		for (int j=0;j<nY;j++)
 		{
-			if(i==0+sb||j==0+sb||i==nX-1-sb||j==nY-1-sb)
+			if(i==0||j==0||i==nX-1||j==nY-1)
 			{
 				glColor3f(0.3,0.3,0.3);
 				//drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,flag_Quad=4);//1: following airs color
-			}	
+			}
 			else
 			{
 				glColor3f(1,0,0);
@@ -283,7 +278,7 @@ void Renderer :: renderVector2D(matrix<double> u, matrix<double> v)
 				//drawSquare(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,flag_Quad);//1: on the quad flag
 				drawVectorAngnMag(gridLBX,gridLBY,gridLBX+stepX,gridLBY+stepY,SIGN(U(i,j)),SIGN(V(i,j)),vel_mag(i,j),maxv,vel_ang(i,j));
 			}
-			
+
 			gridLBX+=stepX;
 		}
 		gridLBY+=stepY;
@@ -312,26 +307,26 @@ void Renderer :: drawVectorAngnMag(double lbx,double lby,double rtx,double rty,b
 	//cout<<"\nang:"<<ang<<endl;
 	{
 		float ht = 0.9*(rty-lby) /max *mag;
-		
+
 		glPushMatrix();
 		glTranslatef ((lbx+rtx)/2, (rty+lby)/2, 0.0);
 		glRotatef(ang,0.0,0.0,1.0);
 		glTranslatef (-(lbx+rtx)/2, -((rty+lby)/2), 0.0);
-		
+
 		//cout<<" "<<max<<" "<<mag<<endl;
 		glColor3f(1.0,0,0);
-		glBegin(GL_LINES);		
+		glBegin(GL_LINES);
 		glVertex2f((lbx+rtx)/2, (rty+lby)/2+ht/2);
 		glVertex2f((lbx+rtx)/2, (rty+lby)/2-ht/2);
-		
+
 		glVertex2f((lbx+rtx)/2, (rty+lby)/2-ht/2);
 		glVertex2f((lbx+rtx)/2+ht/10, (rty+lby)/2-ht/2+ht/10);
-		
+
 		glVertex2f((lbx+rtx)/2, (rty+lby)/2-ht/2);
 		glVertex2f((lbx+rtx)/2-ht/10, (rty+lby)/2-ht/2+ht/10);
 		glEnd();
 		glPopMatrix();
-	}	
+	}
 }
 
 
@@ -347,9 +342,9 @@ double Renderer :: getMax(matrix<double> mat) //get max value from the 2D array
 
 
 
-void Renderer :: renderDensity(matrix<double> mat)	
+void Renderer :: renderDensity(matrix<double> mat)
 {
-	int d00,d01,d10,d11;	
+	int d00,d01,d10,d11;
 	double gridLBX = this->gridLBX;
 	double gridLBY = this->gridLBY;
 	for (unsigned int i=0;i< mat.size1()-1;i++)
@@ -376,27 +371,27 @@ void Renderer :: renderDensity(matrix<double> mat)
 
 
 /*---for staggered with stam---*/
-	
+
 void Renderer :: renderVel2D_Stam()
 {
 	double h;
 	//h = 1.0f;// /sGrid->nX ;
 	h = sGrid->dx;
 	double x,y ;
-	matrix <double> u = sGrid->u; 
-	matrix <double> v = sGrid->v; 
+	matrix <double> u = sGrid->u;
+	matrix <double> v = sGrid->v;
 	glColor3f( 1.0f, 1.0f, 1.0f);
 	glLineWidth ( 1.0f );
 	glBegin (GL_LINES) ;
 		for( int i=1; i< sGrid->nY; i++){  //not showing boundary..
 			y = (i+0.5f)*h ;
-	
+
 			for( int j=1; j< sGrid->nX; j++){
 				x = (j+0.5f)*h;
 
 				glVertex2f( x, y );
 				glVertex2f( x+U(i,j),  y+V(i,j) ) ;
-				
+
 			}
 		}
 	glEnd();
@@ -406,7 +401,7 @@ void Renderer :: renderDen2D_Stam()
 {
 	int i, j;
 	double x, y, h, d00, d01, d10, d11;
-	
+
 	//h = 1.0f;// /sGrid->nX;
 	h = sGrid->dx;
 
@@ -444,18 +439,18 @@ void Renderer :: renderParticles()
 		//glColor3f(1,i*0.001,0);
 		glColor3f(0,0,0.6);
 		glVertex2d(sGrid->fluidParticles.at(i)->x,sGrid->fluidParticles.at(i)->y);
-	glEnd();	
+	glEnd();
 	}
 }
 
-void Renderer :: renderParticle(double x, double y,double R,double G,double B,int psize) 
+void Renderer :: renderParticle(double x, double y,double R,double G,double B,int psize)
 {
-	
+
  	glPointSize(psize);
 	glBegin(GL_POINTS);
 	glColor3f(R,G,B);
 		glVertex2d(x,y);
-	glEnd();	
+	glEnd();
 }
 
 void Renderer :: renderSurfaceBoundary() {

@@ -6,8 +6,10 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <vector>
 #include "Particles.h"
-
 using namespace boost::numeric::ublas;
+
+#include "ParameterFLAGS.hpp"
+
 
 class GridStag
 {
@@ -39,7 +41,6 @@ public:
 	matrix<double> distanceLevelSet;
 	std::vector< Particles* > fluidParticles ;
 	void initGridStag();
-	GridStag();
 	bool isParticlePresent(double mc_x, double mc_y) ;
 };
 
