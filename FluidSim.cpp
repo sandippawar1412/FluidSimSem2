@@ -100,24 +100,56 @@ void  FluidSim :: setValidVelocity(int val)
 
 void  FluidSim :: simulate(double timestep)
 {
-	dt = cfl() > 0 && cfl()< 1 ? cfl():0.1f ;
+	clock_t t1 = clock();
+	float cflVal = cfl();
+	clock_t t2 = clock();
+	double cflTime = t2-t1;
+
+	dt = cflVal > 0 && cflVal< 1 ? cflVal:0.1f ;
 	{   //mark fluid cells
+		t1 = clock();
 		advectParticles(sGrid->fluidParticles, sGrid->u,sGrid->v, dt);
+		t2 = clock();
+		double advectParticlesTime = t2-t1;
+
+		t1 = clock();
 		markFluidCells();
-			matrix<double > u = sGrid->u;
-			matrix<double > v = sGrid->v;
+		t2 = clock();
+		double markFluidCellsTime = t2-t1;
+
+
+		matrix<double > u = sGrid->u;
+		matrix<double > v = sGrid->v;
         //advect velocity
+		t1 = clock();
 		calculateLevelSetDistance();
+		t2 = clock();
+		double calculateLevelSetDistanceTime = t2-t1;
+
+		t1 = clock();
 		sGrid->u = advect2DSelf(sGrid->u,dt,u,v,1);
 		sGrid->v = advect2DSelf(sGrid->v,dt,u,v,2);
+		t2 = clock();
+		double advect2DSelfTime = t2-t1;
+
+		t1 = clock();
 		applyBoundaryConditions(VELOCITY_BC2);
+		t2 = clock();
+		double applyBoundaryConditionsTime = t2-t1;
+
+
 		//add Gravity
+		t1 = clock();
 		sGrid->v = addGravity(sGrid->v,dt);
+		t2 = clock();
+		double addGravityTime = t2-t1;
+
 		applyBoundaryConditions(VELOCITY_BC2);
 		//add Viscosity
 //		addViscosity(0,dt);
 //		applyBoundaryConditions(VELOCITY_BC2);
 		//apply Pressure
+		t1 = clock();
 		switch(ProjectFLAG){
 		case GSRflag :
 			//sGrid->p = projectGSr(sGrid->u, sGrid->v, dt); //used u and v and result stored again in u ,v
@@ -131,8 +163,12 @@ void  FluidSim :: simulate(double timestep)
 		case NoPressure:
 			break;
 		}
+		t2 = clock();
+		double solvePressureBridsonTime = t2-t1;
+
 		applyBoundaryConditions(VELOCITY_BC2);
         //extrapolation
+		t1 = clock();
 		extern bool extrapolateFlag;
 		if(extrapolateFlag){
 			setValidVelocity(1);
@@ -140,11 +176,20 @@ void  FluidSim :: simulate(double timestep)
 			extrapolate2D(sGrid->v,vValid);
 			setValidVelocity(0);
 		}
+		t2 = clock();
+		double extrapolate2DTime = t2-t1;
+
 		applyBoundaryConditions(VELOCITY_BC2);
         //advect Particles
 		//advectParticles(sGrid->fluidParticles, sGrid->u,sGrid->v, dt);
 		//markFluidCells();
+		cout<<"cflTime: "<<cflTime/CLOCKS_PER_SEC*1000<<" advectParticlesTime: "<<advectParticlesTime/CLOCKS_PER_SEC*1000<<" advect2DSelfTime: "
+				         <<advect2DSelfTime/CLOCKS_PER_SEC*1000<<" applyBoundaryConditionsTime: "<<applyBoundaryConditionsTime/CLOCKS_PER_SEC*1000
+				         <<" addGravityTime: "<<addGravityTime/CLOCKS_PER_SEC*1000<<" solvePressureBridsonTime: "
+				         <<solvePressureBridsonTime/CLOCKS_PER_SEC*1000<<" extrapolate2DTime: "<<extrapolate2DTime/CLOCKS_PER_SEC*1000
+				         <<" calculateLevelSetDistanceTime : "<<calculateLevelSetDistanceTime/CLOCKS_PER_SEC*1000<<endl;;
 	}
+
 }
 
 
@@ -553,7 +598,7 @@ void FluidSim :: initFluidBody(int FluidPos)
 		fluidPosBY = 1 ;//sb+1;
 		fluidPosTX = nX-1-sb;
 		fluidPosTY = ((nY-1-sb) - (nY-1-2*sb)/3) ;
-		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*16; ++i) {
+		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*PARTICLE_PER_CELL; ++i) {
 			float xpos = randhashf(i * 2, 0.0+sb/nX, zoomFactor-sb/nX);
 			float ypos = randhashf(i * 2 + 1,0.0+sb/nX, zoomFactor-sb/nX);
 
@@ -573,7 +618,7 @@ void FluidSim :: initFluidBody(int FluidPos)
 		fluidPosTY = fluidPosBY + 6*(nX-sb)/10;
 		fluidPosTX = fluidPosBX + 4*(nY-sb)/10;
 
-		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*16; ++i) {
+		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*PARTICLE_PER_CELL; ++i) {
 			float xpos = randhashf(i * 2, 0.0+sb/nX, zoomFactor-sb/nX);
 			float ypos = randhashf(i * 2 + 1, 0.0+sb/nX, zoomFactor-sb/nX);
 
@@ -594,7 +639,7 @@ void FluidSim :: initFluidBody(int FluidPos)
 		fluidPosTY = fluidPosBY + 6*(nX-sb)/20;
 		fluidPosTX = 32 - fluidPosBX ;
 
-		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*16; ++i) {
+		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*PARTICLE_PER_CELL; ++i) {
 			float xpos = randhashf(i * 2, 0.0+sb/nX, zoomFactor-sb/nX);
 			float ypos = randhashf(i * 2 + 1, 0.0+sb/nX, zoomFactor-sb/nX);
 
@@ -616,7 +661,7 @@ void FluidSim :: initFluidBody(int FluidPos)
 		fluidPosTY = fluidPosBY + 12*(nX-sb)/20;
 		fluidPosTX = fluidPosBX + 6*(nX-sb)/20 ;
 
-		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*16; ++i) {
+		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*PARTICLE_PER_CELL; ++i) {
 			float xpos = randhashf(i * 2, 0.0+sb/nX, zoomFactor-sb/nX);
 			float ypos = randhashf(i * 2 + 1, 0.0+sb/nX, zoomFactor-sb/nX);
 
@@ -639,7 +684,7 @@ void FluidSim :: initFluidBody(int FluidPos)
 		fluidPosTY = fluidPosBY + 12*(nY-sb)/20;
 		fluidPosTX = 19*(nY-sb)/20 + 1;
 
-		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*16; ++i) {
+		for (int i = 0+sb; i < (nX-sb)*(nY-sb)*PARTICLE_PER_CELL; ++i) {
 			float xpos = randhashf(i * 2, 0.0+sb/nX, zoomFactor-sb/nX);
 			float ypos = randhashf(i * 2 + 1, 0.0+sb/nX, zoomFactor-sb/nX);
 

@@ -15,6 +15,7 @@ using namespace std;
 
 //double force = 5.0f ;
 //double density = 100.0f ;
+#define PARTICLE_PER_CELL 4
 #define FLUID 1
 #define SOLID 2
 #define AIR 0

@@ -38,7 +38,7 @@ GridStag :: GridStag()
 
 void GridStag :: initGridStag()
 {
-	nX = nY = 64;
+	nX = nY = 128;
 	//nY = 8;
 	
 	dx = (double)zoomFactor/nX;

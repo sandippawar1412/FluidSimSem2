@@ -73,7 +73,8 @@ void Timer(int val) {
     glutPostRedisplay();
     glutTimerFunc(FRAME_INTERVAL_ms, Timer, 1);
 }
-/*int main(int argc, char** argv)
+/*
+int main(int argc, char** argv)
 {
    glutInit(&argc, argv);
    init ();
@@ -87,7 +88,8 @@ void Timer(int val) {
  //  glutTimerFunc(FRAME_INTERVAL_ms,Timer,1);  //1s/40ms = 1000/40 -> 25 frames/sec
    glutMainLoop();
    return 0;
-}*/
+}
+*/
 int main(int argc, char** argv)
 {
    //glutInit(&argc, argv);
@@ -214,7 +216,8 @@ void display(void){
 
 void display1(void)
 {
-   preDisplay();
+//clock in display doesn't work..
+	preDisplay();
    //print->matrices(sGrid->distanceLevelSet);
    switch(output)
    {
@@ -261,12 +264,19 @@ void display1(void)
 
 void idleFun ( void )
 {
+	clock_t t1=clock(),t2;
+
 	if(idleOn){
 	 animate();
-	 print->matrices(sGrid->distanceLevelSet);
+		t2=clock();
+		double diff = t2-t1;
+		cout<<"display "<<" : "<<diff/CLOCKS_PER_SEC*1000<<"ms"<<endl;
+
+	 // print->matrices(sGrid->distanceLevelSet);
 	 glutSetWindow ( winId );
 	 glutPostRedisplay ( );
 	 }
+
 }
 
 void motionFun ( int x, int y )
