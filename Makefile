@@ -16,11 +16,11 @@ LIBS = $(GL_LIBS)
 all: $(OBJ) liquid2D
 
 $(OBJ): %.o : %.cpp
-	$(CC) -c $(CFLAGS) -Wno-write-strings -Wunused-value $< -o $@
+	$(CC) -c $(CFLAGS) -Wno-write-strings -Wunused-value $< -o $@ 
 
 #-Wno-write-strings : to ignore warning related to deprecated conversion from const char* to char*
 liquid2D: $(OBJ) 
-	$(CC) $(OBJ) $(LIBS) -o $@
+	$(CC) $(OBJ) $(LIBS) -o $@ -pg
 
 clean:
 	rm -f  ./*~ ./core $(OBJ) liquid2D
@@ -29,7 +29,7 @@ clean:
 GridStag.o : GridStag.h ParameterFLAGS.hpp
 Renderer.o : Renderer.h
 FluidSim.o : FluidSim.h ./pcgsolver/*.h ParameterFLAGS.hpp
-main.o : main.h commonData.h
+main.o : main.h commonData.h ParameterFLAGS.hpp
 Printer.o : Printer.h
 Particles.o : Particles.h
 

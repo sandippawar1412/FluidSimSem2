@@ -1,16 +1,17 @@
 #include "commonData.h"
+#include "ParameterFLAGS.hpp"
 #include "main.h"
 #include <time.h>
 #include <pthread.h>
 
-/*
 int main(int argc, char** argv)
 {
 	init();
 	int i=pthread_getconcurrency();
 	clock_t t1,t2;
 	int it=0;
-	while(1){
+	int ni= 0;
+	while(ni++<NO_OF_ITERATIONS){
 		t1 = clock();
 		animate();
 		t2 = clock();
@@ -20,7 +21,6 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-*/
 
 
 void animate()
@@ -50,6 +50,7 @@ void openGlutWindow ( char* windowName) ;
 void reshape ( int w, int h ) ;
 void idleFun();
 
+/*
 
 int main(int argc, char** argv)
 {
@@ -63,6 +64,7 @@ int main(int argc, char** argv)
    glutMainLoop();
    return 0;
 }
+*/
 
 void display(void){
 	preDisplay();
