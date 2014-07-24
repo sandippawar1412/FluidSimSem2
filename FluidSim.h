@@ -46,7 +46,7 @@ public:
 	void markFluidCells();	
 	void extrapolate2D(matrix<double> &grid, matrix<int> &valid);
 
-	double getVelInterpolated(double x,double y, matrix<double> mat);
+	double getVelInterpolated(double x,double y, matrix<double>& mat);
 
 	void solvePressureBridson(float dt);
 	//Solver data
@@ -55,7 +55,7 @@ public:
 	std::vector<double> rhs;
 	std::vector<double> pressure;
 
-	void RK2(double &posx, double &posy,matrix<double> u, matrix<double> v, double dt);
+	void RK2(double &posx, double &posy,matrix<double>& u, matrix<double>& v, double dt);
 	void setValidVelocity(int val);
 	void addViscosity(double,double) ;
 	matrix<double> addVisc_Helper(matrix<double>, double, double , int );

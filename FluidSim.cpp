@@ -170,7 +170,7 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 				posx = x/dx;
 				posy = y/dx;
 				RK2(posx,posy,sGrid->u,sGrid->v,-dt);
-				temp(i,j) = getVelInterpolated(posx,posy-0.5,sGrid->u);
+				temp(i,j) = 1 ;// getVelInterpolated(posx,posy-0.5,sGrid->u);
 			}
 		}
 		}
@@ -479,7 +479,7 @@ void FluidSim :: applyBoundaryConditions(int bc)//boundary Condition //keep-BC2
 
 }
 
-void FluidSim :: RK2(double &posx, double &posy,matrix<double> u, matrix<double> v, double dt){
+void FluidSim :: RK2(double &posx, double &posy,matrix<double> &u, matrix<double> &v, double dt){
 	double dx = sGrid->dx;
 	double x = posx*dx;
 	double y = posy*dx;
@@ -521,7 +521,7 @@ matrix<double> FluidSim :: addForce(matrix<double> dest, double dt, matrix<doubl
 	return dest;
 }
 
-double FluidSim :: getVelInterpolated(double x,double y, matrix<double> mat)
+double FluidSim :: getVelInterpolated(double x,double y, matrix<double> &mat)
 {
 	int i = (int)floor(x);
 	int j = (int)floor(y);
