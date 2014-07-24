@@ -5,7 +5,7 @@
 
 #include "GridStag.h"
 #include "Particles.h"
-
+#include <omp.h>
 #include "pcgsolver/sparse_matrix.h"
 #include "pcgsolver/pcg_solver.h"
 

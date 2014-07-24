@@ -6,6 +6,7 @@
 #include "FluidSim.h"
 #include "Printer.h"
 //#include "Vec.h"
+#include <sys/time.h>
 #include <math.h>
 #include "pcgsolver/util.h"
 #include <cassert>
@@ -22,48 +23,51 @@ void FluidSim :: init(GridStag* sGrid)
 
 void  FluidSim :: simulate(double timestep)
 {
-	clock_t t1 = clock();
+	struct timeval tt1, tt2;
+	
+	gettimeofday(&tt1, NULL);
 	float cflVal = cfl();
-	clock_t t2 = clock();
-	double cflTime = t2-t1;
+	gettimeofday(&tt2, NULL);
+	
+	double cflTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 
 	dt = cflVal > 0 && cflVal< 1 ? cflVal:0.1f ;
 	{   //mark fluid cells
-		t1 = clock();
+		gettimeofday(&tt1, NULL);		
 		advectParticles(sGrid->fluidParticles, sGrid->u,sGrid->v, dt);
-		t2 = clock();
-		double advectParticlesTime = t2-t1;
+		gettimeofday(&tt2, NULL);		
+		double advectParticlesTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		markFluidCells();
-		t2 = clock();
-		double markFluidCellsTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double markFluidCellsTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 
 
 		matrix<double > u = sGrid->u;
 		matrix<double > v = sGrid->v;
 		//advect velocity
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		calculateLevelSetDistance();
-		t2 = clock();
-		double calculateLevelSetDistanceTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double calculateLevelSetDistanceTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		sGrid->u = advect2DSelf(sGrid->u,dt,u,v,1);
 		sGrid->v = advect2DSelf(sGrid->v,dt,u,v,2);
-		t2 = clock();
-		double advect2DSelfTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double advect2DSelfTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		applyBoundaryConditions(VELOCITY_BC2);
-		t2 = clock();
-		double applyBoundaryConditionsTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double applyBoundaryConditionsTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 
 		//add Gravity
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		sGrid->v = addGravity(sGrid->v,dt);
-		t2 = clock();
-		double addGravityTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double addGravityTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 		applyBoundaryConditions(VELOCITY_BC2);
 
 		//add Viscosity
@@ -71,30 +75,30 @@ void  FluidSim :: simulate(double timestep)
 		//		applyBoundaryConditions(VELOCITY_BC2);
 
 		//apply Pressure
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		solvePressureBridson((float)dt);
-		t2 = clock();
-		double solvePressureBridsonTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double solvePressureBridsonTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 		applyBoundaryConditions(VELOCITY_BC2);
 
 		//extrapolation
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		setValidVelocity(1);
 		extrapolate2D(sGrid->u,uValid);
 		extrapolate2D(sGrid->v,vValid);
 		setValidVelocity(0);
-		t2 = clock();
-		double extrapolate2DTime = t2-t1;
+		gettimeofday(&tt2, NULL);
+		double extrapolate2DTime = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
 		applyBoundaryConditions(VELOCITY_BC2);
 
 		//advect Particles
 		//advectParticles(sGrid->fluidParticles, sGrid->u,sGrid->v, dt);
 		//markFluidCells();
-		cout<<"cflTime: "<<cflTime/CLOCKS_PER_SEC*1000<<" advectParticlesTime: "<<advectParticlesTime/CLOCKS_PER_SEC*1000<<" advect2DSelfTime: "
-				<<advect2DSelfTime/CLOCKS_PER_SEC*1000<<" applyBoundaryConditionsTime: "<<applyBoundaryConditionsTime/CLOCKS_PER_SEC*1000
-				<<" addGravityTime: "<<addGravityTime/CLOCKS_PER_SEC*1000<<" solvePressureBridsonTime: "
-				<<solvePressureBridsonTime/CLOCKS_PER_SEC*1000<<" extrapolate2DTime: "<<extrapolate2DTime/CLOCKS_PER_SEC*1000
-				<<" calculateLevelSetDistanceTime : "<<calculateLevelSetDistanceTime/CLOCKS_PER_SEC*1000<<endl;;
+		cout<<"cflTime: "<<cflTime<<" advectParticlesTime: "<<advectParticlesTime<<" advect2DSelfTime: "
+				<<advect2DSelfTime<<" applyBoundaryConditionsTime: "<<applyBoundaryConditionsTime
+				<<" addGravityTime: "<<addGravityTime<<" solvePressureBridsonTime: "
+				<<solvePressureBridsonTime<<" extrapolate2DTime: "<<extrapolate2DTime
+				<<" calculateLevelSetDistanceTime : "<<calculateLevelSetDistanceTime<<endl;;
 	}
 
 }
@@ -139,12 +143,18 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 	//dt*=nX;
 	double x,y, posx, posy;
 	int part_rows = nX/ NTHREADS;
+	int th_id;
+	omp_set_num_threads(NTHREADS);
 	if(component==1){ //Horizontal Component
-		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy)
+		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy, th_id)
 		{
+			// th_id = omp_get_thread_num(); //th_id holds the thread number for each thread
+
 		#pragma omp for schedule(guided,part_rows)
 		for(int i=1;i<=nY-2;i++){
 			for(int j=1;j<=nX-1;j++){
+		//		printf("Thread #%d is doing row %d.\n",th_id,i); //Uncomment this line to see which thread is doing each row
+      
 				x = (j)*dx;
 				y = (i+0.5)*dx;
 				posx = x/dx;
@@ -171,6 +181,7 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 		}
 		}
 	}
+	omp_set_num_threads(1);
 	return temp;
 }
 
