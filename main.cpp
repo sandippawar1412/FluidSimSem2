@@ -3,19 +3,20 @@
 #include <time.h>
 #include <pthread.h>
 #include <omp.h>
+#include <sys/time.h>
 int main(int argc, char** argv)
 {
+	struct timeval tt1, tt2;
 	init();
 	int i=pthread_getconcurrency();
-	clock_t t1,t2;
 	int it=0;
 	int ni= 0;
 	while(ni++<NO_OF_ITERATIONS){
-		t1 = clock();
+		gettimeofday(&tt1, NULL);
 		animate();
-		t2 = clock();
-		double diff = t2-t1;
-		cout<<"Iteration "<<it<<" : "<<diff/CLOCKS_PER_SEC*1000<<"ms"<<endl;
+		gettimeofday(&tt2, NULL);
+		int milliSeconds = (tt2.tv_sec - tt1.tv_sec) * 1000 + (tt2.tv_usec - tt1.tv_usec)/1000;
+		cout<<"Iteration "<<it<<" : "<<milliSeconds<<"ms"<<endl<<endl;
 		it++;
 	}
 	return 0;
@@ -34,7 +35,7 @@ void init(void)
    fluidSim->initFluidBody(fBT);// 2: indicates dam break center
    print->init(sGrid);
    render->init(sGrid);
-   omp_set_num_threads(NTHREADS);
+   
 }
 
 void initParticles()
