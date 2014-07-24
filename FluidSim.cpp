@@ -124,13 +124,23 @@ double FluidSim ::  cfl() //keep
 void FluidSim :: advectParticles(std::vector <Particles*> & plist, matrix<double> u, matrix<double>v, double dt)//keep
 {
 	double dx = sGrid->dx;
+	int part_rows = plist.size()/ NTHREADS;
+	omp_set_num_threads(NTHREADS);
+	double posx,posy;
+	#pragma omp parallel shared(plist,u,v,dx,part_rows) private(posx,posy)
+	{	
+		#pragma omp for schedule(guided,part_rows)
+	
 	for ( unsigned i = 0; i < plist.size(); i++){
-		double posx = plist.at(i)->x /dx ;
-		double posy = plist.at(i)->y /dx ;
-		RK2(posx, posy, sGrid->u, sGrid->v, dt);
+	
+		posx = plist.at(i)->x /dx ;
+		posy = plist.at(i)->y /dx ;
+		RK2(posx, posy, u, v, dt);
 		plist.at(i)->x = posx*dx;
 		plist.at(i)->y = posy*dx;
 	}
+	}
+	omp_set_num_threads(1);
 }
 matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<double> u, matrix<double> v,int component)//keep
 {
