@@ -124,13 +124,23 @@ double FluidSim ::  cfl() //keep
 void FluidSim :: advectParticles(std::vector <Particles*> & plist, matrix<double> u, matrix<double>v, double dt)//keep
 {
 	double dx = sGrid->dx;
+	int part_rows = plist.size()/ NTHREADS;
+	omp_set_num_threads(NTHREADS);
+	double posx,posy;
+	#pragma omp parallel shared(plist,u,v,dx,part_rows) private(posx,posy)
+	{	
+		#pragma omp for schedule(guided,part_rows)
+	
 	for ( unsigned i = 0; i < plist.size(); i++){
-		double posx = plist.at(i)->x /dx ;
-		double posy = plist.at(i)->y /dx ;
-		RK2(posx, posy, sGrid->u, sGrid->v, dt);
+	
+		posx = plist.at(i)->x /dx ;
+		posy = plist.at(i)->y /dx ;
+		RK2(posx, posy, u, v, dt);
 		plist.at(i)->x = posx*dx;
 		plist.at(i)->y = posy*dx;
 	}
+	}
+	omp_set_num_threads(1);
 }
 matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<double> u, matrix<double> v,int component)//keep
 {
@@ -160,7 +170,7 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 				posx = x/dx;
 				posy = y/dx;
 				RK2(posx,posy,sGrid->u,sGrid->v,-dt);
-				temp(i,j) = getVelInterpolated(posx,posy-0.5,sGrid->u);
+				temp(i,j) = 1 ;// getVelInterpolated(posx,posy-0.5,sGrid->u);
 			}
 		}
 		}
@@ -469,7 +479,7 @@ void FluidSim :: applyBoundaryConditions(int bc)//boundary Condition //keep-BC2
 
 }
 
-void FluidSim :: RK2(double &posx, double &posy,matrix<double> u, matrix<double> v, double dt){
+void FluidSim :: RK2(double &posx, double &posy,matrix<double> &u, matrix<double> &v, double dt){
 	double dx = sGrid->dx;
 	double x = posx*dx;
 	double y = posy*dx;
@@ -511,7 +521,7 @@ matrix<double> FluidSim :: addForce(matrix<double> dest, double dt, matrix<doubl
 	return dest;
 }
 
-double FluidSim :: getVelInterpolated(double x,double y, matrix<double> mat)
+double FluidSim :: getVelInterpolated(double x,double y, matrix<double> &mat)
 {
 	int i = (int)floor(x);
 	int j = (int)floor(y);
