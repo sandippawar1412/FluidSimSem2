@@ -125,11 +125,13 @@ void FluidSim :: advectParticles(std::vector <Particles*> & plist, matrix<double
 {
 	double dx = sGrid->dx;
 	int part_rows = plist.size()/ NTHREADS;
-	omp_set_num_threads(NTHREADS);
+//	omp_set_num_threads(NTHREADS);
 	double posx,posy;
-	#pragma omp parallel shared(plist,u,v,dx,part_rows) private(posx,posy)
+//	#pragma omp parallel for default(none) \
+	                     shared(plist,u,v,dx,part_rows)\
+	                     private(posx,posy)
 	{	
-		#pragma omp for schedule(guided,part_rows)
+//		#pragma omp for schedule(guided,part_rows)
 	
 	for ( unsigned i = 0; i < plist.size(); i++){
 	
@@ -140,7 +142,7 @@ void FluidSim :: advectParticles(std::vector <Particles*> & plist, matrix<double
 		plist.at(i)->y = posy*dx;
 	}
 	}
-	omp_set_num_threads(1);
+//	omp_set_num_threads(1);
 }
 matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<double> u, matrix<double> v,int component)//keep
 {
@@ -154,13 +156,13 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 	double x,y, posx, posy;
 	int part_rows = nX/ NTHREADS;
 	int th_id;
-	omp_set_num_threads(NTHREADS);
+//	omp_set_num_threads(NTHREADS);
 	if(component==1){ //Horizontal Component
-		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy, th_id)
+//		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy, th_id)
 		{
 			// th_id = omp_get_thread_num(); //th_id holds the thread number for each thread
 
-		#pragma omp for schedule(guided,part_rows)
+//		#pragma omp for schedule(guided,part_rows)
 		for(int i=1;i<=nY-2;i++){
 			for(int j=1;j<=nX-1;j++){
 		//		printf("Thread #%d is doing row %d.\n",th_id,i); //Uncomment this line to see which thread is doing each row
@@ -176,9 +178,9 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 		}
 	}
 	else{ //component=2 i.e. Vertical component
-		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy)
+//		#pragma omp parallel shared(nX,nY,dx,temp,part_rows) private(x,y,posx,posy)
 		{
-		#pragma omp for schedule(guided,part_rows)
+//		#pragma omp for schedule(guided,part_rows)
 		for(int i=1;i<=nY-1;i++){
 			for(int j=1;j<=nX-2;j++){
 				x = (j+0.5)*dx;
@@ -191,7 +193,7 @@ matrix<double> FluidSim :: advect2DSelf(matrix<double> q, double dt, matrix<doub
 		}
 		}
 	}
-	omp_set_num_threads(1);
+//	omp_set_num_threads(1);
 	return temp;
 }
 
@@ -457,6 +459,7 @@ void  FluidSim :: setValidVelocity(int val) //keep
 void FluidSim :: applyBoundaryConditions(int bc)//boundary Condition //keep-BC2
 {
 	//bottom boundary
+	cout<<"ok"<<endl;
 	for(int x = 0; x < sGrid->nX; x++){
 		sGrid->v(0,x) =  0;//-sGrid->v(2,x);
 		sGrid->v(1,x) = 0;//sGrid->v(2,x);

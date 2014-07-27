@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <omp.h>
 #include <sys/time.h>
+/*
 int main(int argc, char** argv)
 {
 	struct timeval tt1, tt2;
@@ -21,6 +22,7 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
+*/
 
 
 void animate()
@@ -51,7 +53,6 @@ void openGlutWindow ( char* windowName) ;
 void reshape ( int w, int h ) ;
 void idleFun();
 
-/*
 
 int main(int argc, char** argv)
 {
@@ -65,7 +66,6 @@ int main(int argc, char** argv)
    glutMainLoop();
    return 0;
 }
-*/
 
 void display(void){
 	preDisplay();
